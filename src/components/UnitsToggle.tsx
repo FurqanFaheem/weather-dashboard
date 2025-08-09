@@ -11,8 +11,8 @@ export default function UnitsToggle({ units, onChange }: Props) {
       <label>
         Units:{' '}
         <select value={units} onChange={(e) => onChange(e.target.value as Units)}>
-          <option value="metric">Metric (°C)</option>
-          <option value="imperial">Imperial (°F)</option>
+          <option value="metric">Celsius (°C)</option>
+          <option value="imperial">Fahrenheit (°F)</option>
         </select>
       </label>
     </div>

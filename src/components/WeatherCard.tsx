@@ -15,7 +15,14 @@ export default function WeatherCard({ data, units }: Props) {
   const windSymbol = units === 'metric' ? 'm/s' : 'mph';
 
   return (
-    <div style={{ border: '1px solid #ccc', borderRadius: 8, padding: 16, maxWidth: 400, background: '#fff' }}>
+    <div style={{
+    border: '1px solid #ccc',
+    borderRadius: 8,
+    padding: 16,
+    maxWidth: 400,
+    background: '#fff',
+    color: '#000'
+    }}>
       <h2 style={{ marginTop: 0 }}>{data.name}</h2>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

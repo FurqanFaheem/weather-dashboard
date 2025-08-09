@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import SearchBar from './components/SearchBar';
+import UnitsToggle from './components/UnitsToggle';
+import WeatherCard from './components/WeatherCard';
+import { fetchWeather } from './api';
+import type { Units, WeatherResponse } from './types';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [units, setUnits] = useState<Units>('metric');
+  const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  async function handleSearch(city: string) {
+    try {
+      setLoading(true);
+      setErrorMsg('');
+      const data = await fetchWeather(city, units);
+      setWeatherData(data);
+    } catch (err: any) {
+      setWeatherData(null);
+      setErrorMsg(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleUnitsChange(newUnits: Units) {
+    setUnits(newUnits);
+    if (weatherData) {
+      handleSearch(weatherData.name);
+    }
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <main style={{ maxWidth: 600, margin: '40px auto', padding: '0 16px' }}>
+      <h1>Weather Dashboard</h1>
 
-export default App
+      <UnitsToggle units={units} onChange={handleUnitsChange} />
+      <SearchBar onSearch={handleSearch} />
+
+      {loading && <p>Loading...</p>}
+      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
+      {weatherData && !loading && <WeatherCard data={weatherData} units={units} />}
+    </main>
+  );
+}
