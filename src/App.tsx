@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import UnitsToggle from './components/UnitsToggle';
 import WeatherCard from './components/WeatherCard';
@@ -10,6 +10,20 @@ export default function App() {
   const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [lastCity, setLastCity] = useState<string>('');
+
+  useEffect(() => {
+    const savedCity = localStorage.getItem('lastCity') || '';
+    const savedUnits = (localStorage.getItem('lastUnits') as Units) || 'metric';
+
+    setUnits(savedUnits);
+    setLastCity(savedCity);
+
+    if (savedCity) {
+      handleSearch(savedCity);
+    }
+
+  }, []);
 
   async function handleSearch(city: string) {
     try {
@@ -17,6 +31,8 @@ export default function App() {
       setErrorMsg('');
       const data = await fetchWeather(city, units);
       setWeatherData(data);
+      localStorage.setItem('lastCity', data.name);
+      setLastCity(data.name);
     } catch (err: any) {
       setWeatherData(null);
       setErrorMsg(err.message || 'Something went wrong');
@@ -27,8 +43,12 @@ export default function App() {
 
   function handleUnitsChange(newUnits: Units) {
     setUnits(newUnits);
+    localStorage.setItem('lastUnits', newUnits);
     if (weatherData) {
       handleSearch(weatherData.name);
+    }
+    else if (lastCity) {
+      handleSearch(lastCity);
     }
   }
 
